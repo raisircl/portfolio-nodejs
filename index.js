@@ -1,9 +1,11 @@
 const {createServer}=require('node:http');
 const path=require('path');
 const fs=require('fs');
+require('dotenv').config();
 const hostname='127.0.0.1';
 const port=3600;
 const server=createServer((req,res)=>{
+    console.log(process.env.MSG);
     const req_url=req.url;
     const requested_file_path=path.join(__dirname,req_url);
     const file_ext=path.extname(requested_file_path);
@@ -47,7 +49,7 @@ const server=createServer((req,res)=>{
             else
             {
                 data=data.toString(); // local scope and global
-               
+
                 const common_header_page=path.join(__dirname,'/views/common_head.html');
                 //common head read start  
                 fs.readFile(common_header_page,(cerr,common_header)=>{
@@ -62,57 +64,52 @@ const server=createServer((req,res)=>{
                         
                         
                         data=data.replace('[common-head]',common_header.toString());
-                         
+                        const common_menu_page=path.join(__dirname,'/views/common-menu.html');
+                        //common menu read start  
+                        fs.readFile(common_menu_page,(cmerr,common_menu)=>{
+                            if(cmerr)
+                            {
+                                res.setHeader('Content-Type',`text/html`);
+                                res.statusCode=404;
+                                res.end('<h1>404 common menu Not Found</h1>');       
+                            }
+                            else
+                            {
+                                
+                                
+                                data=data.replace('[common-menu]',common_menu.toString());
+                                const common_footer_page=path.join(__dirname,'/views/common_footer.html');     
+                                //common footer read start  
+                                fs.readFile(common_footer_page,(cferr,common_footer)=>{
+                                    if(cferr)
+                                    {
+                                        res.setHeader('Content-Type',`text/html`);
+                                        res.statusCode=404;
+                                        res.end('<h1>404 common footer Not Found</h1>');       
+                                    }
+                                    else
+                                    {
+                                        
+                                        
+                                        data=data.replace('[common-footer]',common_footer.toString());
+                                        //console.log(data);  // ok
+                                        res.setHeader('Content-Type',`${content_type}`);
+                                        res.statusCode=200;
+                                    
+                                        res.end(data);
+                                    }
+                                });
+                            }
+                        });
+                            
                     }
                 });
-               // head read end
-                 const common_menu_page=path.join(__dirname,'/views/common-menu.html');
-                //common menu read start  
-                fs.readFile(common_menu_page,(cmerr,common_menu)=>{
-                    if(cmerr)
-                    {
-                        res.setHeader('Content-Type',`text/html`);
-                        res.statusCode=404;
-                        res.end('<h1>404 common menu Not Found</h1>');       
-                    }
-                    else
-                    {
-                        
-                        
-                        data=data.replace('[common-menu]',common_menu.toString());
-                         
-                    }
-                });
-               // head read end
-              const common_footer_page=path.join(__dirname,'/views/common_footer.html');     
-              //common footer read start  
-                fs.readFile(common_footer_page,(cferr,common_footer)=>{
-                    if(cferr)
-                    {
-                        res.setHeader('Content-Type',`text/html`);
-                        res.statusCode=404;
-                        res.end('<h1>404 common footer Not Found</h1>');       
-                    }
-                    else
-                    {
-                        
-                        
-                        data=data.replace('[common-footer]',common_footer.toString());
-                        //console.log(data);  // ok
-                        res.setHeader('Content-Type',`${content_type}`);
-                        res.statusCode=200;
-                    
-                        res.end(data);
-                    }
-                });
-               
             }
         });
     } 
-  
-   else if(req_url.includes('assets/css'))
-   {
-         var page=fs.readFile(requested_file_path,(err,data)=>{
+    else if(req_url.includes('assets/css'))
+    {
+            var page=fs.readFile(requested_file_path,(err,data)=>{
             if(err)
             {
                 res.setHeader('Content-Type',`text/html`);
