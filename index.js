@@ -1,17 +1,24 @@
 const {createServer}=require('node:http');
 const path=require('path');
 const fs=require('fs');
+const url = require('url');
+const querystring = require('querystring');
 require('dotenv').config();
+
 const hostname='127.0.0.1';
 const port=3600;
 const server=createServer((req,res)=>{
-    console.log(process.env.MSG);
+    //console.log(process.env.MSG);
     const req_url=req.url;
     const requested_file_path=path.join(__dirname,req_url);
     const file_ext=path.extname(requested_file_path);
     //console.log(`Req File Path: ${requested_file_path}`);
     //console.log(`File Extension: ${file_ext}`);
     // /console.log(`req url: ${req.url}`);
+    const parsedUrl = url.parse(req.url);
+    const queryParams = querystring.parse(parsedUrl.query);
+    
+    
     const content_types={
         '.html':'text/html',
         '.css':'text/css',
@@ -32,12 +39,14 @@ const server=createServer((req,res)=>{
         '/project-details':'/views/project-details.html',
         '/blog-details':'/views/blog-details.html',
     };
-    const html_page=html_pages[req_url];
-
+    const html_page=html_pages[parsedUrl.pathname];
+    
     //console.log(`Html Page ${html_page}`);
 
     if(html_page)
     {
+            
+
             const home_page=path.join(__dirname,`${html_page}`);
             fs.readFile(home_page,(err,data)=>{
             if(err)
@@ -48,6 +57,13 @@ const server=createServer((req,res)=>{
             }
             else
             {
+               
+                
+                if(Object.keys(queryParams).length!=0)
+                {
+                console.log("query params:");
+                console.log(`Welcome :${queryParams.name}`);
+                }
                 data=data.toString(); // local scope and global
 
                 const common_header_page=path.join(__dirname,'/views/common_head.html');
