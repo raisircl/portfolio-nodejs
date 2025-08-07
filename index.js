@@ -129,17 +129,36 @@ const server=createServer((req,res)=>{
             }
         });
     } 
-        // Handle form submissions (GET requests to the processing route)
-    else if (parsedUrl.pathname == '/submit-contact') {
-        
-        console.log(`Form data received....: ${req.method}`);
-         let body = '';
-        req.on('data', chunk => {
-        body += chunk.toString(); // Collect data chunks
+    // else if (parsedUrl.pathname === '/submit-contact') {
+    // const queryParams = querystring.parse(parsedUrl.query);
+    // console.log(`Received contact form data using:${req.method} method`);
+    // console.log(`Name: ${queryParams.contact_name}`);
+    // console.log(`Email: ${queryParams.contact_email}`);
+    // console.log(`Message: ${queryParams.contact_msg}`);
+
+    // res.writeHead(200, { 'Content-Type': 'text/html' });
+    // res.end(`<h2>Thanks, ${queryParams.contact_name}! Your message has been received.</h2>`);
+    // }
+    
+    else if (parsedUrl.pathname === '/submit-contact' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => 
+            {
+                body += chunk.toString()
+            });
+
+            req.on('end', () => {
+            const data = querystring.parse(body);
+
+            console.log("Received AJAX contact form data:");
+            console.log(data);
+
+            // Send a plain text response (AJAX expects this)
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end("Thanks! Your message has been sent.");
         });
-         console.log(`Form data received....: ${body}`);
-       
     }
+
     else if(req_url.includes('assets/css'))
     {
             var page=fs.readFile(requested_file_path,(err,data)=>{
