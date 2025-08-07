@@ -18,6 +18,9 @@ const server=createServer((req,res)=>{
     const parsedUrl = url.parse(req.url);
     const queryParams = querystring.parse(parsedUrl.query);
     
+    console.log('Parsed URL');
+    console.log(parsedUrl);
+
     
     const content_types={
         '.html':'text/html',
@@ -37,11 +40,14 @@ const server=createServer((req,res)=>{
         '/contact':'/views/contact.html',
         '/projects':'/views/projects.html',
         '/project-details':'/views/project-details.html',
-        '/blog-details':'/views/blog-details.html',
+        '/blog-details':'/views/blog-details.html'
+       
+        
     };
     const html_page=html_pages[parsedUrl.pathname];
     
-    //console.log(`Html Page ${html_page}`);
+    console.log(`Html Page ${html_page}`);
+ 
 
     if(html_page)
     {
@@ -123,6 +129,17 @@ const server=createServer((req,res)=>{
             }
         });
     } 
+        // Handle form submissions (GET requests to the processing route)
+    else if (parsedUrl.pathname == '/submit-contact') {
+        
+        console.log(`Form data received....: ${req.method}`);
+         let body = '';
+        req.on('data', chunk => {
+        body += chunk.toString(); // Collect data chunks
+        });
+         console.log(`Form data received....: ${body}`);
+       
+    }
     else if(req_url.includes('assets/css'))
     {
             var page=fs.readFile(requested_file_path,(err,data)=>{
