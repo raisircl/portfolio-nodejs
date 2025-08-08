@@ -3,6 +3,7 @@ const path=require('path');
 const fs=require('fs');
 const url = require('url');
 const querystring = require('querystring');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const hostname='127.0.0.1';
@@ -40,14 +41,11 @@ const server=createServer((req,res)=>{
         '/contact':'/views/contact.html',
         '/projects':'/views/projects.html',
         '/project-details':'/views/project-details.html',
-        '/blog-details':'/views/blog-details.html'
-       
-        
-    };
+        '/blog-details':'/views/blog-details.html',
+       };
+
     const html_page=html_pages[parsedUrl.pathname];
-    
     console.log(`Html Page ${html_page}`);
- 
 
     if(html_page)
     {
@@ -129,17 +127,6 @@ const server=createServer((req,res)=>{
             }
         });
     } 
-    // else if (parsedUrl.pathname === '/submit-contact') {
-    // const queryParams = querystring.parse(parsedUrl.query);
-    // console.log(`Received contact form data using:${req.method} method`);
-    // console.log(`Name: ${queryParams.contact_name}`);
-    // console.log(`Email: ${queryParams.contact_email}`);
-    // console.log(`Message: ${queryParams.contact_msg}`);
-
-    // res.writeHead(200, { 'Content-Type': 'text/html' });
-    // res.end(`<h2>Thanks, ${queryParams.contact_name}! Your message has been received.</h2>`);
-    // }
-    
     else if (parsedUrl.pathname === '/submit-contact' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => 
@@ -152,8 +139,32 @@ const server=createServer((req,res)=>{
 
             console.log("Received AJAX contact form data:");
             console.log(data);
-
-            // Send a plain text response (AJAX expects this)
+             // Create a transporter object using Gmail's SMTP server
+            const transporter = nodemailer.createTransport({
+                service: 'gmail', // Specify the email service as 'gmail'
+                auth: {
+                user: '...@gmail.com', // Your Gmail address
+                pass: '...' // Your generated App Password
+                }
+            });
+             // Define the email options
+            const mailOptions = {
+                from: '...@gmail.com', // Sender address (your Gmail address)
+                to: `${data.email}`, // Recipient's email address
+                subject: 'Thank to Reaching us!', // Subject line
+                text: 'Our Executive contact you soon.', // Plain text body
+                html: '<p>This is a test email sent from Node.js using <b>Nodemailer</b> and Gmail App Password.</p>' // HTML body (optional)
+            };
+            // Send the email
+            transporter.sendMail(mailOptions)
+            .then((info) => {
+            console.log('Email sent: %s', info.messageId);
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+            })
+            .catch((error) => {
+            console.error('Error sending email:', error.message);
+            });
+           //Send a plain text response (AJAX expects this)
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end("Thanks! Your message has been sent.");
         });

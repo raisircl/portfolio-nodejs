@@ -9,6 +9,7 @@
   "author": "rai",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^17.2.1"
+    "dotenv": "^17.2.1",
+    "nodemailer": "^7.0.5"
   }
 }

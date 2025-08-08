@@ -23,7 +23,8 @@
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(`Hello, ${name}!`);
     
-    Read data on submit:
+------------------------------------------------
+Read data on submit:
     What is 'data' in req.on('data', ...)?
     In Node.js, when a client (like a browser) sends an HTTP request with a body (usually for POST, PUT, etc.), the body doesn't arrive all at once — it comes in chunks (like small packets).
 
@@ -37,6 +38,7 @@
 
 You're telling Node:
 “Whenever a new chunk of data comes in from the client, please call this function.”
+
 let body = '';
 
 req.on('data', chunk => {
