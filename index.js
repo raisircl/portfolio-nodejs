@@ -4,7 +4,19 @@ const fs=require('fs');
 const url = require('url');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://codetestst:<pwd>@cluster-st-codetest.u9esacd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-ST-CodeTest";
+
 require('dotenv').config();
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 const hostname='127.0.0.1';
 const port=3600;
@@ -139,17 +151,38 @@ const server=createServer((req,res)=>{
 
             console.log("Received AJAX contact form data:");
             console.log(data);
+            // Connect the client to the server	(optional starting in v4.7)
+            client.connect();
+            // Send a ping to confirm a successful connection
+            client.db("portfolioDB").command({ ping: 1 });
+
+            console.log("Pinged your deployment. You successfully connected to MongoDB!");
+            const myDB = client.db("portfolioDB");
+            const myColl = myDB.collection("contactUsData");
+            const result = myColl.insertOne(data);
+            console.log(
+            `A document was inserted with the _id: ${result.insertedId}`,
+            );
+            /*
+                            {
+                name: 'Rai',
+                email: 'rai.verma@gmail.com',
+                phone: '9813222299',
+                subject: 'Hello',
+                message: 'Hello Rai'
+                }
+            */
              // Create a transporter object using Gmail's SMTP server
             const transporter = nodemailer.createTransport({
                 service: 'gmail', // Specify the email service as 'gmail'
                 auth: {
-                user: '...@gmail.com', // Your Gmail address
+                user: 'codetest.st@gmail.com', // Your Gmail address
                 pass: '...' // Your generated App Password
                 }
             });
              // Define the email options
             const mailOptions = {
-                from: '...@gmail.com', // Sender address (your Gmail address)
+                from: 'codetest.st@gmail.com', // Sender address (your Gmail address)
                 to: `${data.email}`, // Recipient's email address
                 subject: 'Thank to Reaching us!', // Subject line
                 text: 'Our Executive contact you soon.', // Plain text body
